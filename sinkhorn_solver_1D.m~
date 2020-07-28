@@ -6,8 +6,6 @@
 % outside of the solver by reshaping
 
 clear
-cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code') 
-
 
 % Space grid 
 nspace = 100 ;
@@ -17,15 +15,15 @@ xmax = 10 ;
 % Time horizon
 T = 10 ;
 % Number of time steps
-N = 40 ;
+N = 100 ;
 
-sigma = .01 ; % OT Regularization parameter
-nu1 = .4 ; % Diffusion parameter for first population (inhabitants)
-nu2 = .1 ; % Diffusion parameter for second population (firms)
+sigma = 1 ; % OT Regularization parameter
+nu1 = .2 ; % Diffusion parameter for first population (inhabitants)
+nu2 = .2 ; % Diffusion parameter for second population (firms)
 
 % Moving cost parameters
 theta1 = 1 ;
-theta2 = 2 ;
+theta2 = 6 ;
 
 % Ground cost : linear, sqrt, or quadratic
 groundcost = 'sqrt' ; 
@@ -39,15 +37,15 @@ elseif strcmp(groundcost,'quadratic') == 1
 end
 
 % Congestion power
-p = 4 ;
+p = 10 ;
 
 % INTERNAL DEFINITIONS
 
 % Space grid
 x = linspace(xmin,xmax,nspace) ;
 
-m1_0 = gaussian1D(x,1,.1) + gaussian1D(x,3,.1) + gaussian1D(x,5,.1) + gaussian1D(x,7,.1) ;
-m2_0 = gaussian1D(x,2,.1) + gaussian1D(x,4,.1) + gaussian1D(x,6,.1) + gaussian1D(x,8,.1) ;
+m1_0 = gaussian1D(x,1,.1) + gaussian1D(x,8.5,.2);
+m2_0 = gaussian1D(x,5,.5) ;
 
 % m1_0 = tent(x,2,.3) ;
 % m2_0 = tent(x,7,.2);
@@ -285,8 +283,6 @@ toc
 addpath('/Users/cesarbarilla/Documents/MATLAB/gif')
 addpath('/Users/cesarbarilla/Documents/MATLAB/suplabel')
 
-cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/Simulations')
-
         figure
        
         subplot(nbsteps,1,1)
@@ -308,33 +304,4 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/Simulations')
         timetext = ['k = N =', num2str(N)] ;
         ylabel(timetext)
         [ax,h1]=suplabel(modelsumup);
-        
-        
-        
-%% Output Gif
-
-addpath('/Users/cesarbarilla/Documents/MATLAB/gif')
-addpath('/Users/cesarbarilla/Documents/MATLAB/suplabel')
-
-cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/Simulations')
-
-        figure
-        
-        plot(x,Q1(1,:),x,Q2(1,:),'linewidth',1) ; axis tight ;
-        pbaspect([2,1,1])
-        legend('Density of inhabitants','Density of firms')
-        gif('Simu1D_11.gif','Delaytime', 3/4,'frame',gcf)
-        timetext = ['k =', num2str(0)] ;
-        ylabel(timetext)
-        xlabel(modelsumup)
-        
-        for iplot = 2:N+1
-        plot(x,Q1(iplot,:),x,Q2(iplot,:),'linewidth',1) ; axis tight ;
-        pbaspect([2,1,1])
-        legend('Density of inhabitants','Density of firms')
-        timetext = ['k =', num2str(iplot-1)] ;
-        ylabel(timetext)
-        xlabel(modelsumup)
-        gif
-        end
     

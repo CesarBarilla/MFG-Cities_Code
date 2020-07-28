@@ -3,21 +3,10 @@ function kertemp = kertemp(k,A,ker)
 % Computes integration of a potential matrix A by succesive convolution against
 % the heat kernel in all dimensions except the k-th
 
-% More specifically, let 
-% - A be a matrix of potentials of dimension (N+1)*S 
-% - ker a S*S kernel. 
-% 
-% Define P the S^*(N+1) path measure :
-%   P(i_0,...,i_N) = ker(i_1-i_0)...ker(i_N-i_{N-1})
-%
-% Denote as XA the tensor product of A over paths :
-%   XA(i_0,...,i_N) = A(0,i_0)*...*A(N,i_N)
-%
-% => When ker is the Heat Kernel, P is the discretized Wiener measure.
+% More specifically, let A be a potential matrix of dimension N*S and ker a N*S
+% kernel.
 
-% This function computes :
-% Sum_{ i_0, ... i_{k-1}, i_{k+1}, ... , N } (XA*P)(i_0,...,i_k,i,i_{k+1},...i_N)
-% As a vector in i.
+% This function computs
 
 [Nplus,~] = size(A) ;
 N = Nplus - 1 ;

@@ -310,6 +310,19 @@ while (err_Q1_temp > thrs) || (err_Q2_temp > thrs)
 % Main loop end
 end
 
+if count < nbitermax
+    disp(['Main loop converged after ',num2str(count),...
+        ' iterations (Error = ', num2str(err_P_temp),...
+        ' (Q1) ; ', num2str(err_Q_temp),' (Q2))']) ;
+end
+
+if count >= nbitermax
+    disp(['Main loop ended after reaching max of ',num2str(count),...
+        ' iterations (Error = ', num2str(err_P_temp),...
+        ' (Q1) ; ', num2str(err_Q_temp),' (Q2))']) ;
+end
+
+
 toc
 
 %%
