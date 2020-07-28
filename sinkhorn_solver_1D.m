@@ -1,97 +1,103 @@
 %% SOLVER FOR 1D Problem
 
 
-% INPUTS (Should later become variables) 
-% -> Inputs should all be given as vectorized as if model is 1D (2D handled
-% outside of the solver by reshaping
+% INPUTS/PARAMETERS
 
 clear
 cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code') 
 
-
 % Space grid 
-nspace = 100 ;
-xmin = 0 ;
-xmax = 10 ;
+    nspace = 100 ;
+    xmin = 0 ;
+    xmax = 10 ;
+    x = linspace(xmin,xmax,nspace) ;
 
 % Time horizon
-T = 10 ;
+    T = 40 ;
 % Number of time steps
-N = 40 ;
-
-sigma = .01 ; % OT Regularization parameter
-nu1 = .4 ; % Diffusion parameter for first population (inhabitants)
-nu2 = .1 ; % Diffusion parameter for second population (firms)
+    N = 60 ;
+% OT Regularization parameter
+    sigma = .08 ; 
+% Diffusion parameter for first population (inhabitants)    
+    nu1 = .01 ; 
+ % Diffusion parameter for second population (firms)    
+    nu2 = .01 ;
 
 % Moving cost parameters
-theta1 = 1 ;
-theta2 = 2 ;
+    theta1 = 1 ;
+    theta2 = 20 ;
 
 % Ground cost : linear, sqrt, or quadratic
-groundcost = 'sqrt' ; 
+    groundcost = 'quadratic' ; 
 
-if strcmp(groundcost,'sqrt') == 1
-    gcpower = 1/2 ;
-elseif strcmp(groundcost,'linear') == 1
-    gcpower = 1 ;
-elseif strcmp(groundcost,'quadratic') == 1
-    gcpower = 2 ;
-end
+    if strcmp(groundcost,'sqrt') == 1
+        gcpower = 1/2 ;
+    elseif strcmp(groundcost,'linear') == 1
+        gcpower = 1 ;
+    elseif strcmp(groundcost,'quadratic') == 1
+        gcpower = 2 ;
+    end
 
-% Congestion power
-p = 4 ;
+% Congestion function parameters 
+    p = 10 ; % power
+    a = 20 ; % multiplicative constant
 
-% INTERNAL DEFINITIONS
 
-% Space grid
-x = linspace(xmin,xmax,nspace) ;
+% Initial conditions (comment/uncomment/modify as desired)
 
-m1_0 = gaussian1D(x,1,.1) + gaussian1D(x,3,.1) + gaussian1D(x,5,.1) + gaussian1D(x,7,.1) ;
-m2_0 = gaussian1D(x,2,.1) + gaussian1D(x,4,.1) + gaussian1D(x,6,.1) + gaussian1D(x,8,.1) ;
+    %m2_0 = gaussian1D(x,2,.2) + gaussian1D(x,6,.1) + gaussian1D(x,9,.3) ;
+    %m2_0 = gaussian1D(x,4,.1) ;
+    %m1_0 = ones(1,nspace) ;
 
-% m1_0 = tent(x,2,.3) ;
-% m2_0 = tent(x,7,.2);
+    %m1_0 = gaussian1D(x,1,.1) + gaussian1D(x,3,.1) + gaussian1D(x,5,.1) + gaussian1D(x,7,.1) ;
+    %m2_0 = gaussian1D(x,2,.1) + gaussian1D(x,4,.1) + gaussian1D(x,6,.1) + gaussian1D(x,8,.1) ;
 
-massmin = 0.001 ; 
-m1_0 = normalize(m1_0+max(m1_0)*massmin) ;
-m2_0 = normalize(m2_0+max(m2_0)*massmin) ;
+    m1_0 = tent(x,0,2) + tent(x,10,2) ;
+    m2_0 = tent(x,5,1) ;
+
+
+% Normalize initial conditions
+    massmin = 0.001 ; 
+    m1_0 = normalize(m1_0+max(m1_0)*massmin) ;
+    m2_0 = normalize(m2_0+max(m2_0)*massmin) ;
 
 % Time step
-dt = T/N ; 
+    dt = T/N ; 
 
 % OT Kernel
-xi = exp(-c(x,gcpower)/sigma) ;
+    xi = exp(-c(x,gcpower)/sigma) ;
 
 % Heat Kernels
-P1 = P(nu1*dt,x) ;
-P2 = P(nu2*dt,x) ;
+    P1 = P(nu1*dt,x) ;
+    P2 = P(nu2*dt,x) ;
 
 
 
 % INITIALIZATION
-Q1 = repmat(m1_0,[N+1,1]) ;
-Q2 = repmat(m2_0,[N+1,1]) ;
- 
-% Initialize potentials
-A1 = ones(N+1,nspace) ; 
-A2 = ones(N+1,nspace) ;
-V1 = ones(N+1,nspace) ;
-V2 = ones(N+1,nspace) ;
-    
-    
-nbsteps = 7 ;
-plotsteps = 7 ;
+    Q1 = repmat(m1_0,[N+1,1]) ;
+    Q2 = repmat(m2_0,[N+1,1]) ;
+    A1 = ones(N+1,nspace) ; 
+    A2 = ones(N+1,nspace) ;
+    V1 = ones(N+1,nspace) ;
+    V2 = ones(N+1,nspace) ;
 
-parameterstext = ['T = ', num2str(T), ' ; N = ', num2str(N),...
-    ' ; \theta_1 = ', num2str(theta1),...
-    ' ; \theta_2 = ', num2str(theta2),...
-    ' ; \sigma = ', num2str(sigma),...
-    ' ; \nu_1 = ', num2str(nu1),...
-    ' ; \nu_2 = ', num2str(nu2),...
-    ' ; p = ', num2str(p),...
-    ' ; ground cost : ', groundcost] ;
 
-modelsumup = { parameterstext } ;
+% Plotting parameters    
+    nbsteps = 7 ;
+    plotsteps = 7 ;
+
+% Store parameters in text to append to graph outputs
+    parameterstext = ['T = ', num2str(T), ' ; N = ', num2str(N),...
+        ' ; \theta_1 = ', num2str(theta1),...
+        ' ; \theta_2 = ', num2str(theta2),...
+        ' ; \sigma = ', num2str(sigma),...
+        ' ; \nu_1 = ', num2str(nu1),...
+        ' ; \nu_2 = ', num2str(nu2),...
+        ' ; p = ', num2str(p),...
+        ' ; a = ', num2str(a),...
+        ' ; ground cost : ', groundcost] ;
+
+    modelsumup = { parameterstext } ;
 
 
 %% SINKHORN ITERATIONS 
@@ -122,7 +128,7 @@ while (err_Q1_temp > thrs) || (err_Q2_temp > thrs)
         disp(['Error (L2 norm on densities) = ', ...
             num2str(err_Q1_temp),' (Q1), ', ...
             num2str(err_Q2_temp),' (Q2)'])
-    end
+    end  
     
     % Store previous iterations
     Q1_prev = Q1 ;
@@ -193,7 +199,7 @@ while (err_Q1_temp > thrs) || (err_Q2_temp > thrs)
             kertemp1 = kertemp(k, A1.^(-dt*sigma / theta1) .* exp(V1) , P1) ;
             kertemp2 = kertemp(k, A2.^(-dt*sigma / theta2) .* exp(V2) , P2) ;
             
-            funcwithgrad = @(beta) optimiterfunc(beta,p,theta1,theta2,kertemp1,kertemp2,dt) ;
+            funcwithgrad = @(beta) optimiterfunc(beta,p,a,theta1,theta2,kertemp1,kertemp2,dt) ;
 
             options = optimoptions(@fminunc,...
                   'Display','off',...
@@ -253,7 +259,7 @@ while (err_Q1_temp > thrs) || (err_Q2_temp > thrs)
         plot(x,Q1(N,:),x,Q2(N,:),'linewidth',1.5) ; axis tight ;
         timetext = ['k = N =', num2str(N)] ;
         ylabel(timetext)
-        
+         
         drawnow
         
     end    
@@ -282,9 +288,7 @@ toc
 
 %% Output graph
 
-addpath('/Users/cesarbarilla/Documents/MATLAB/gif')
 addpath('/Users/cesarbarilla/Documents/MATLAB/suplabel')
-
 cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/Simulations')
 
         figure
@@ -315,7 +319,6 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/Simulations')
 
 addpath('/Users/cesarbarilla/Documents/MATLAB/gif')
 addpath('/Users/cesarbarilla/Documents/MATLAB/suplabel')
-
 cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/Simulations')
 
         figure
@@ -323,7 +326,7 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/Simulations')
         plot(x,Q1(1,:),x,Q2(1,:),'linewidth',1) ; axis tight ;
         pbaspect([2,1,1])
         legend('Density of inhabitants','Density of firms')
-        gif('Simu1D_11.gif','Delaytime', 3/4,'frame',gcf)
+        gif('Simu1D_26.gif','Delaytime', 3/4,'frame',gcf)
         timetext = ['k =', num2str(0)] ;
         ylabel(timetext)
         xlabel(modelsumup)

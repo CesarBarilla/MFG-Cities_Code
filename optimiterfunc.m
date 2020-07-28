@@ -1,4 +1,4 @@
-function [func,dfunc] = optimiterfunc(beta,p,theta1,theta2,alpha1,alpha2,dt)
+function [func,dfunc] = optimiterfunc(beta,p,a,theta1,theta2,alpha1,alpha2,dt)
 
     % Returns the function to minimize in each iteration of the algorithm (func)
     % and its gradient (dfunc) for variable beta.
@@ -9,10 +9,10 @@ function [func,dfunc] = optimiterfunc(beta,p,theta1,theta2,alpha1,alpha2,dt)
     
     func = theta1 * alpha1 * exp( - (dt/theta1) * beta )' ...
             + theta2 * alpha2 * exp( - (dt/theta2) * beta )' ...
-            + sum( G(beta,p) ) ;
+            + sum( G(beta,p,a) ) ;
                  
     dfunc = - alpha1 .* exp( - (dt/theta1) * beta ) ...
             - alpha2 .* exp( - (dt/theta2) * beta ) ...
-            + dG(beta,p)  ;  
+            + dG(beta,p,a)  ;  
         
 end
