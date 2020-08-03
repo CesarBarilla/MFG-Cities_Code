@@ -28,13 +28,13 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code')
     theta2 = 20 ;
 
 % Ground cost : linear, sqrt, or quadratic
-    groundcost = 'quadratic' ; 
+    groundcosttxt = 'quadratic' ; 
 
-    if strcmp(groundcost,'sqrt') == 1
+    if strcmp(groundcosttxt,'sqrt') == 1
         gcpower = 1/2 ;
-    elseif strcmp(groundcost,'linear') == 1
+    elseif strcmp(groundcosttxt,'linear') == 1
         gcpower = 1 ;
-    elseif strcmp(groundcost,'quadratic') == 1
+    elseif strcmp(groundcosttxt,'quadratic') == 1
         gcpower = 2 ;
     end
 
@@ -95,7 +95,7 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code')
         ' ; \nu_2 = ', num2str(nu2),...
         ' ; p = ', num2str(p),...
         ' ; a = ', num2str(a),...
-        ' ; ground cost : ', groundcost] ;
+        ' ; ground cost : ', groundcosttxt] ;
 
     modelsumup = { parameterstext } ;
 

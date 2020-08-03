@@ -9,7 +9,7 @@ clear
 cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code') 
 
 % Space grid 
-    nspace = 20 ;
+    nspace = 40 ;
     nspace2 = nspace.^2 ;
     
     x1min = 0 ;
@@ -24,48 +24,50 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code')
     X = [X1(:) X2(:)] ;
 
 % Time horizon
-    T = 2 ;
+    T = 10 ;
 % Number of time steps
-    N = 8 ;
+    N = 20 ;
 % OT Regularization parameter
-    sigma = .1 ; 
-% Diffusion parameter for first population (inhabitants)    
-    nu1 = .4 ; 
+    sigma = 1 ; 
+% Diffusion parameter for first popul ation (inhabitants)    
+    nu1 = 20 ; 
  % Diffusion parameter for second population (firms)    
-    nu2 = .1 ;
+    nu2 = 40 ;
 
 % Moving cost parameters
-    theta1 = 1 ;    
-    theta2 = 4 ;
+    theta1 = 50 ;    
+    theta2 = 100 ;
 
 % Ground cost : linear, sqrt, or quadratic
-    groundcost = 'linear' ; 
-
-    if strcmp(groundcost,'sqrt') == 1
+    groundcosttxt = 'sqrt' ; 
+ 
+    if strcmp(groundcosttxt,'sqrt') == 1
         gcpower = 1/2 ;
-    elseif strcmp(groundcost,'linear') == 1
+    elseif strcmp(groundcosttxt,'linear') == 1
         gcpower = 1 ;
-    elseif strcmp(groundcost,'quadratic') == 1
+    elseif strcmp(groundcosttxt,'quadratic') == 1
         gcpower = 2 ;
     end
 
 % Congestion function parameters 
-    p = 100 ; % power
-    a = 20 ; % multiplicative constant
+    p = 200 ; % power
+    a = 400 ; % multiplicative constant
 
 % Initial conditions (comment/uncomment/modify as desired)
     gaussian2D = @(mu,sigma) mvnpdf(X,mu,sigma) ;
 
     rng(1)
-    Sig1 = randvar(2,1) ; % Generates random variance-covariance matrix
-    Sig2 = randvar(2,1) ; % Generates random variance-covariance matrix
-    Sig3 = randvar(2,1) ; % Generates random variance-covariance matrix
-    Sig4 = randvar(2,1) ; % Generates random variance-covariance matrix
+    Sig1 = randvar(2,2) ; % Generates random variance-covariance matrix
+    Sig2 = randvar(2,2) ; % Generates random variance-covariance matrix
+    Sig3 = randvar(2,2) ; % Generates random variance-covariance matrix
+    Sig4 = randvar(2,2) ; % Generates random variance-covariance matrix
+    Sig5 = randvar(2,4) ; % Generates random variance-covariance matrix
+    Sig6 = randvar(2,2) ; % Generates random variance-covariance matrix
 
-    m1_0 = gaussian2D([3,1],Sig1) ...
-            + gaussian2D([7,8],Sig2) ...
-            + gaussian2D([2,2],Sig3) ;
-    m2_0 = gaussian2D([5,5],Sig4) ;
+    m1_0 = gaussian2D([1.5,1.5],Sig1) ...
+            + gaussian2D([1.5,8.5],Sig2) ;
+    m2_0 = gaussian2D([8.5,1.5],Sig3) ...
+            + gaussian2D([8.5,8.5],Sig4) ;
 
 % Normalize initial conditions    
     massmin = .001 ; 
@@ -80,14 +82,47 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code')
     dt = T/N ; 
 
 % OT Kernel IN MATRIX FORM (size nspace^2 x nspace^2)
-    groundcost = c(X(:,1)',1) + c(X(:,2)',1) ;
+    groundcost = c(X(:,1)',gcpower) + c(X(:,2)',gcpower) ;
     xi = exp(-groundcost/sigma) ;
 
 % Heat Kernels
-    P1 = P(nu1*dt,X(:,1)') .* P(nu1*dt,X(:,2)') ;
-    P1 = normalize(P1+max(P1)*massmin) ;
 
-    P2 = P(nu2*dt,X(:,1)') .* P(nu2*dt,X(:,2)') ;
+    per1 = x1(nspace)-x1(1)+x1(2) ;
+    per2 = x2(nspace)-x2(1)+x2(2) ;
+
+    %P1 = P(nu1*dt,X1(:)') .* P(nu1*dt,X2(:)') ;    
+    P1 = (2 * nu1  * dt).^(-1) ...
+            .* exp( - min( ...
+                            (X1(:)-X1(:)').^2 ,...
+                            (X1(:)-per1-X1(:)').^2 ...
+                           )...
+                       / ( 2 * nu1 * dt) ...
+                   ) ...
+            .* exp( - min( ...
+                            (X2(:)-X2(:)').^2 ,...
+                            (X2(:)-per2-X2(:)').^2 ...
+                           )...
+                       / ( 2 * nu1 * dt) ...
+                    ) ;
+
+   P1 = normalize(P1+max(P1)*massmin) ;
+    
+    %P2 = P(nu2*dt,X1(:)') .* P(nu2*dt,X2(:)') ;
+   
+    P2 = (2 * nu2  * dt).^(-1) ...
+            .* exp( - min( ...
+                            (X1(:)-X1(:)').^2 ,...
+                            (X1(:)-per1-X1(:)').^2 ...
+                           )...
+                       / ( 2 * nu2 * dt) ...
+                   ) ...
+            .* exp( - min( ...
+                            (X2(:)-X2(:)').^2 ,...
+                            (X2(:)-per2-X2(:)').^2 ...
+                           )...
+                       / ( 2 * nu2 * dt) ...
+                    ) ;
+        
     P2 = normalize(P2+max(P2)*massmin) ;
 
 
@@ -103,7 +138,7 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code')
     nbsteps = 7 ;
     plotsteps = 7 ;
 
-% Store parameters in text to append to graph outputs    
+% Store parameters in text to append to graph outputs
     parameterstext = ['T = ', num2str(T), ' ; N = ', num2str(N),...
         ' ; \theta_1 = ', num2str(theta1),...
         ' ; \theta_2 = ', num2str(theta2),...
@@ -111,14 +146,15 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code')
         ' ; \nu_1 = ', num2str(nu1),...
         ' ; \nu_2 = ', num2str(nu2),...
         ' ; p = ', num2str(p),...
-        ' ; ground cost : ', groundcost] ;
+        ' ; a = ', num2str(a),...
+        ' ; ground cost : ', groundcosttxt] ;
 
     modelsumup = { parameterstext } ;
     
 %% SINKHORN ITERATIONS 
 
 nbitermax = 2000 ; % Set number of iteration
-freq_display = 10 ;
+freq_display = 1 ;
 freq_plot = 500 ; % Frequence of plots during iterations
 thrs = 10^(-8) ; % Error threshold
 
@@ -279,7 +315,7 @@ while (err_Q1_temp > thrs) || (err_Q2_temp > thrs)
         timetext = ['k = ', num2str(k_eval-1)] ;
         ylabel(timetext)
         subplot(nbsteps,2,j+1)
-        surf(X1,X2,reshape(Q1(k_eval,:),[nspace,nspace]),...
+        surf(X1,X2,reshape(Q2(k_eval,:),[nspace,nspace]),...
             'edgecolor','none') ;
         end
         
@@ -307,16 +343,15 @@ end
 
 if count < nbitermax
     disp(['Main loop converged after ',num2str(count),...
-        ' iterations (Error = ', num2str(err_P_temp),...
-        ' (Q1) ; ', num2str(err_Q_temp),' (Q2))']) ;
+        ' iterations (Error = ', num2str(err_Q1_temp),...
+        ' (Q1) ; ', num2str(err_Q2_temp),' (Q2))']) ;
 end
 
 if count >= nbitermax
     disp(['Main loop ended after reaching max of ',num2str(count),...
-        ' iterations (Error = ', num2str(err_P_temp),...
-        ' (Q1) ; ', num2str(err_Q_temp),' (Q2))']) ;
+        ' iterations (Error = ', num2str(err_Q1_temp),...
+        ' (Q1) ; ', num2str(err_Q2_temp),' (Q2))']) ;
 end
-
 
 toc
 
@@ -327,12 +362,12 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/Simulations')
 
 figure
         
-        subplot(nbsteps,2,1)
+        subplot(plotsteps,2,1)
         contourf(X1,X2,reshape(Q1(1,:),[nspace,nspace]),...
             'edgecolor', 'none') ;
         title('Density of inhabitants') ;
         ylabel('k = 0')
-        subplot(nbsteps,2,2)
+        subplot(plotsteps,2,2)
         contourf(X1,X2,reshape(Q2(1,:),[nspace,nspace]),...
             'edgecolor', 'none') ;
         colorbar
@@ -341,23 +376,23 @@ figure
         for iplot = 2:plotsteps
         k_eval = floor((iplot-1)*((N+1)/plotsteps)) + 1 ;
         j = 2*iplot-1 ;
-        subplot(nbsteps,2,j)
+        subplot(plotsteps,2,j)
         contourf(X1,X2,reshape(Q1(k_eval,:),[nspace,nspace]),...
             'edgecolor','none') ;
         timetext = ['k = ', num2str(k_eval-1)] ;
         ylabel(timetext)
-        subplot(nbsteps,2,j+1)
+        subplot(plotsteps,2,j+1)
         contourf(X1,X2,reshape(Q2(k_eval,:),[nspace,nspace]),...
             'edgecolor','none') ;
         colorbar
         end
         
-        subplot(nbsteps,2,2*nbsteps-1)
+        subplot(plotsteps,2,2*nbsteps-1)
         contourf(X1,X2,reshape(Q1(N+1,:),[nspace,nspace]),...
             'edgecolor', 'none') ;
         timetext = ['k = N =', num2str(N)] ;
         ylabel(timetext)
-        subplot(nbsteps,2,2*nbsteps)
+        subplot(plotsteps,2,2*nbsteps)
         contourf(X1,X2,reshape(Q2(N+1,:),[nspace,nspace]),...
             'edgecolor', 'none') ;
         colorbar
@@ -381,7 +416,7 @@ clf
         axis tight ;
         pbaspect([1,1,1])
         title('Density of inhabitants') ;
-        ylabel('k = 0')
+        zlabel('k = 0')
         subplot(1,2,2)
         surf(X1,X2,reshape(Q2(1,:),[nspace,nspace]),...
             'edgecolor', 'none') ; 
@@ -389,7 +424,7 @@ clf
         pbaspect([1,1,1])
         title('Density of firms') ;
         [ax,h1]=suplabel(modelsumup);
-        gif('G2D_10.gif','Delaytime', 3/4,'frame',gcf)
+        gif('Simu2D_9.gif','Delaytime', 3/4,'frame',gcf)
         
        
         for iplot = 2:N+1
@@ -399,7 +434,7 @@ clf
         axis tight ;
         pbaspect([1,1,1])
         title('Density of inhabitants') ;
-        ylabel(['k =', num2str(iplot-1)])
+        zlabel(['k =', num2str(iplot-1)])
         subplot(1,2,2)
         surf(X1,X2,reshape(Q2(iplot,:),[nspace,nspace]),...
         'edgecolor', 'none') ; axis tight ;

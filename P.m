@@ -8,6 +8,6 @@ function heatker = P(t,x)
     heatker = ( 2 * t ).^(-1/2) .* exp( - dist2(x) / (2 * t) ) ;
     
     % Normalization
-    heatker = heatker ./ sum(heatker(:)) ;
+    %heatker = heatker ./ sum(heatker(:)) ;
 
 end
