@@ -30,9 +30,9 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code')
 % OT Regularization parameter
     sigma = 1 ; 
 % Diffusion parameter for first popul ation (inhabitants)    
-    nu1 = 20 ; 
+    nu1 = 1 ; 
  % Diffusion parameter for second population (firms)    
-    nu2 = 40 ;
+    nu2 = 10 ;
 
 % Moving cost parameters
     theta1 = 50 ;    
@@ -105,7 +105,7 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code')
                        / ( 2 * nu1 * dt) ...
                     ) ;
 
-   P1 = normalize(P1+max(P1)*massmin) ;
+   P1 = normalize(P1) ;
     
     %P2 = P(nu2*dt,X1(:)') .* P(nu2*dt,X2(:)') ;
    
@@ -123,7 +123,7 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code')
                        / ( 2 * nu2 * dt) ...
                     ) ;
         
-    P2 = normalize(P2+max(P2)*massmin) ;
+    P2 = normalize(P2) ;
 
 
 % INITIALIZATION
@@ -424,7 +424,7 @@ clf
         pbaspect([1,1,1])
         title('Density of firms') ;
         [ax,h1]=suplabel(modelsumup);
-        gif('Simu2D_9.gif','Delaytime', 3/4,'frame',gcf)
+        gif('Simu2D_10.gif','Delaytime', 3/4,'frame',gcf)
         
        
         for iplot = 2:N+1

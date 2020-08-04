@@ -1,4 +1,4 @@
-function tent = tent(x,x0,epsilon)
+ function tent = tent(x,x0,epsilon)
 
     % Tent function for : 
     % - space grid x
