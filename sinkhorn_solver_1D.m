@@ -45,8 +45,10 @@ cd('/Users/cesarbarilla/Documents/Work/Projects/MFG-Cities/MFG-Cities_Code')
 
 % Initial conditions (comment/uncomment/modify as desired)
 
-    m2_0 = gaussian1D(x,2,.2) + gaussian1D(x,5,.5) + gaussian1D(x,6,.1) + gaussian1D(x,9,.3) ;
+    %m2_0 = gaussian1D(x,2,.2) + gaussian1D(x,6,.1) + gaussian1D(x,9,.3) ;
     %m1_0 = gaussian1D(x,4,.1) ;
+    
+    m2_0 = gaussian1D(x,2,.2) + gaussian1D(x,5,.5) + gaussian1D(x,6,.1) + gaussian1D(x,9,.3) ;
     m1_0 = ones(1,nspace) ;
 
     %m1_0 = gaussian1D(x,1,.1) + gaussian1D(x,3,.1) + gaussian1D(x,5,.1) + gaussian1D(x,7,.1) ;
@@ -209,8 +211,8 @@ while (err_Q1_temp > thrs) || (err_Q2_temp > thrs)
  
             [beta_sol,~] = fminunc(funcwithgrad,init,options) ;
             
-            V1(k,:) = (dt/theta1) * beta_sol ;
-            V2(k,:) = (dt/theta2) * beta_sol ;
+            V1(k,:) = - (dt/theta1) * beta_sol ;
+            V2(k,:) = - (dt/theta2) * beta_sol ;
             
         end
 

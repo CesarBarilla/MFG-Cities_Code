@@ -264,8 +264,8 @@ while (err_Q1_temp > thrs) || (err_Q2_temp > thrs)
            
 %           beta_sol = fsolve(dfunc,init,optimoptions('fsolve','Display','off')) ;
             
-            V1(k,:) = (dt/theta1) * beta_sol ;
-            V2(k,:) = (dt/theta2) * beta_sol ;
+            V1(k,:) = - (dt/theta1) * beta_sol ;
+            V2(k,:) = - (dt/theta2) * beta_sol ;
             
         end
 
@@ -424,7 +424,7 @@ clf
         pbaspect([1,1,1])
         title('Density of firms') ;
         [ax,h1]=suplabel(modelsumup);
-        gif('Simu2D_10.gif','Delaytime', 3/4,'frame',gcf)
+        gif('Simu2D_11.gif','Delaytime', 3/4,'frame',gcf)
         
        
         for iplot = 2:N+1
